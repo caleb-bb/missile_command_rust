@@ -32,6 +32,8 @@ impl GameState for State {
 fn main() -> BError {
     let context = BTermBuilder::new()
         .with_title("Missile Command")
+        .with_font("../resources/flappy32.png", 32, 32)
+        .with_simple_console(SCREEN_WIDTH, SCREEN_HEIGHT, "../resources/flappy32.png")
         .with_fps_cap(30.0)
         .with_dimensions(SCREEN_WIDTH, SCREEN_HEIGHT)
         .build()?;
