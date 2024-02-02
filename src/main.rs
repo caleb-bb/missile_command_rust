@@ -14,40 +14,43 @@ use prelude::*;
 
 struct Silo {
     x: i32,
-    y: f32,
+    y: i32,
     frame: usize,
 }
 
 impl Silo {
-    fn new(x: i32, y: f32) -> Self {
+    fn new(x: i32, y: i32) -> Self {
         Silo { x, y, frame: 0 }
     }
 
     fn render(&mut self, ctx: &mut BTerm) {
         // ctx.set_active_console(1);
         // ctx.cls();
-        ctx.set(1, 1, YELLOW, BLACK, to_cp437('@'));
+        ctx.set(self.x, self.y, YELLOW, BLACK, to_cp437('S'));
     }
 }
 
 struct State {
     ecs: World,
-    silo: Silo,
+    silos: Vec<Silo>,
     frame_time: f32,
 }
 
 impl State {
     fn new() -> Self {
         let mut ecs = World::default();
+        let silos = vec![Silo::new(10, 49), Silo::new(40, 49), Silo::new(70, 49)];
         Self {
             ecs: ecs,
-            silo: Silo::new(0, 0.0),
+            silos: silos,
             frame_time: 0.0,
         }
     }
     fn play(&mut self, ctx: &mut BTerm) {
-        ctx.cls_bg(NAVY);
-        self.silo.render(ctx);
+        ctx.cls_bg(BLACK);
+        for silo in &mut self.silos {
+            silo.render(ctx);
+        }
     }
 }
 
