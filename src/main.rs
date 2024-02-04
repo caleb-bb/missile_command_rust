@@ -9,18 +9,16 @@ mod prelude {
     pub const SCREEN_HEIGHT: i32 = 50;
 }
 
-const DRAGON_FRAMES: [u16; 6] = [64, 1, 2, 3, 2, 1];
 use prelude::*;
 
 struct Silo {
     x: i32,
     y: i32,
-    frame: usize,
 }
 
 impl Silo {
     fn new(x: i32, y: i32) -> Self {
-        Silo { x, y, frame: 0 }
+        Silo { x, y }
     }
 
     fn render(&mut self, ctx: &mut BTerm) {
@@ -33,18 +31,13 @@ impl Silo {
 struct State {
     ecs: World,
     silos: Vec<Silo>,
-    frame_time: f32,
 }
 
 impl State {
     fn new() -> Self {
         let mut ecs = World::default();
         let silos = vec![Silo::new(10, 49), Silo::new(40, 49), Silo::new(70, 49)];
-        Self {
-            ecs: ecs,
-            silos: silos,
-            frame_time: 0.0,
-        }
+        Self { ecs, silos }
     }
     fn play(&mut self, ctx: &mut BTerm) {
         ctx.cls_bg(BLACK);
