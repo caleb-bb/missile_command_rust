@@ -1,5 +1,7 @@
 #![warn(clippy::pedantic)]
 
+// Once we reach a point where ECS is desired, look at the part of Hands On Rust
+// where the change-over is made to ECS.
 mod prelude {
     pub use bracket_lib::prelude::*;
     pub use legion::systems::CommandBuffer;
@@ -84,6 +86,8 @@ impl State {
             missile.render(ctx);
             missile.fly();
         }
+        self.enemy_missiles
+            .retain(|missile| missile.y < SCREEN_HEIGHT);
     }
 }
 
