@@ -7,7 +7,7 @@ mod prelude {
     pub use legion::systems::CommandBuffer;
     pub use legion::world::SubWorld;
     pub use legion::*;
-    pub const SCREEN_WIDTH: i32 = 80;
+    pub const SCREEN_WIDTH: i32 = 90;
     pub const SCREEN_HEIGHT: i32 = 50;
 }
 
@@ -67,7 +67,7 @@ struct State {
 impl State {
     fn new() -> Self {
         let mut ecs = World::default();
-        let silos = vec![Silo::new(10, 49), Silo::new(40, 49), Silo::new(70, 49)];
+        let silos = vec![Silo::new(15, 48), Silo::new(45, 48), Silo::new(75, 48)];
         let mut enemy_missiles: Vec<Missile> = Vec::new();
         let mut rng = RandomNumberGenerator::new();
         Self {
@@ -94,6 +94,11 @@ impl State {
 impl GameState for State {
     fn tick(&mut self, ctx: &mut BTerm) {
         ctx.set_active_console(0);
+        let mouse = ctx.mouse_point();
+        if ctx.left_click {
+            self.enemy_missiles
+                .retain(|missile| missile.x != mouse.x || missile.y != mouse.y);
+        }
         render_draw_buffer(ctx).expect("Render error, muthafugga");
         if self.enemy_missiles.len() < 1 {
             Missile::spawn_enemy_missile(&mut self.rng, &mut self.enemy_missiles);
