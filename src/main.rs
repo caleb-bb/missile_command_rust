@@ -16,20 +16,30 @@ use prelude::*;
 struct Silo {
     x: i32,
     y: i32,
+    missiles: Vec<Missile>,
 }
 
 impl Silo {
     fn new(x: i32, y: i32) -> Self {
-        Silo { x, y }
+        let missiles: Vec<Missile> = vec![Missile { x, y }; 9];
+        Silo { x, y, missiles }
     }
 
     fn render(&mut self, ctx: &mut BTerm) {
         // ctx.set_active_console(1);
         // ctx.cls();
         ctx.set(self.x, self.y, YELLOW, BLACK, to_cp437('S'));
+        ctx.set(
+            self.x,
+            self.y + 1,
+            GREEN,
+            BLACK,
+            to_cp437(self.missiles.len().to_string().chars().nth(0).unwrap()),
+        )
     }
 }
 
+#[derive(Clone)]
 struct Missile {
     x: i32,
     y: i32,
