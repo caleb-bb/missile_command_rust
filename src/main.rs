@@ -26,7 +26,9 @@ impl Silo {
                 x,
                 y,
                 destination_x: 0,
-                destination_y: 0
+                destination_y: 0,
+                vector: Vec::new(),
+                direction: Direction::Tall,
             };
             9
         ];
@@ -48,20 +50,37 @@ impl Silo {
 }
 
 #[derive(Clone)]
+enum Direction {
+    Tall,
+    Long,
+}
+
+#[derive(Clone)]
 struct Missile {
     x: i32,
     y: i32,
     destination_x: i32,
     destination_y: i32,
+    vector: Vec<(i32, i32)>,
+    direction: Direction,
 }
 
 impl Missile {
-    fn new(x: i32, y: i32, destination_x: i32, destination_y: i32) -> Self {
+    fn new(
+        x: i32,
+        y: i32,
+        destination_x: i32,
+        destination_y: i32,
+        vector: Vec<(i32, i32)>,
+        direction: Direction,
+    ) -> Self {
         Missile {
             x,
             y,
             destination_x,
             destination_y,
+            vector,
+            direction,
         }
     }
 
@@ -72,8 +91,25 @@ impl Missile {
             y: 0,
             destination_x: SCREEN_WIDTH / 2,
             destination_y: SCREEN_HEIGHT,
+            vector: Vec::new(),
+            direction: Direction::Tall,
         };
         enemy_missiles.push(missile);
+    }
+
+    fn initialize_vector(larger_difference: i32, smaller_difference: i32) -> Vec<(i32, i32)> {
+        let remainder = larger_difference % smaller_difference;
+        let quotient = larger_difference / smaller_difference;
+        let mut vector: Vec<(i32, i32)> = Vec::new();
+        for _ in 1..=smaller_difference {
+            let tuple: (i32, i32) = (quotient, 1);
+            vector.push(tuple);
+        }
+        if remainder != 0 {
+            let tuple: (i32, i32) = (remainder, 0);
+            vector.push(tuple);
+        }
+        return vector;
     }
 
     fn spawn_friendly_missile(
@@ -81,11 +117,26 @@ impl Missile {
         destination_y: i32,
         friendly_missiles: &mut Vec<Missile>,
     ) {
+        let x_origin = SCREEN_WIDTH / 2;
+        let y_origin = SCREEN_HEIGHT;
+        let x_distance = (x_origin - destination_x).abs();
+        let y_distance = (y_origin - destination_y).abs();
+        let vector = Self::initialize_vector(
+            std::cmp::max(x_distance, y_distance),
+            std::cmp::min(x_distance, y_distance),
+        );
+        let direction = if x_distance > y_distance {
+            Direction::Long
+        } else {
+            Direction::Tall
+        };
         let missile = Missile {
-            x: SCREEN_WIDTH / 2,
-            y: SCREEN_HEIGHT,
+            x: x_origin,
+            y: y_origin,
             destination_x,
             destination_y,
+            vector,
+            direction,
         };
         friendly_missiles.push(missile)
     }
@@ -95,17 +146,32 @@ impl Missile {
     }
 
     fn fly_to_point(&mut self) {
-        let x_distance = self.destination_x - self.x;
-        let y_distance = self.destination_y - self.y;
+        let (big_step, little_step) = self.vector.remove(0);
+        match self.direction {
+            Direction::Tall => {
+                self.x += big_step;
+                self.y -= little_step;
+            }
+            Direction::Long => {
+                self.x += little_step;
+                self.y -= big_step;
+            }
+        }
+        // let x_distance = self.destination_x - self.x;
+        // let y_distance = self.destination_y - self.y;
 
-        if x_distance > y_distance {
-            self.y -= 1;
-            self.x -= (x_distance / y_distance)
-        }
-        if y_distance >= x_distance {
-            self.x -= 1;
-            self.y -= (y_distance / x_distance)
-        }
+        // if x_distance == 0 || y_distance == 0 {
+        //     return;
+        // }
+
+        // if x_distance > y_distance {
+        //     self.y -= 1;
+        //     self.x -= (x_distance / y_distance)
+        // }
+        // if y_distance >= x_distance {
+        //     self.x -= 1;
+        //     self.y -= (y_distance / x_distance)
+        // }
     }
 
     fn render(&mut self, ctx: &mut BTerm) {
